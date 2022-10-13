@@ -7,15 +7,16 @@ on:
   # pull_request:
   #   branches: [ "main" ]
 
+env:
+  FALCON_CLIENT_ID: "${{ secrets.FALCON_CLIENT_ID }}"
+  FALCON_CLIENT_SECRET: "${{ secrets.FALCON_CLIENT_SECRET }}"
+  FALCON_CLOUD_REGION: 'us-1'
+  CONTAINER_REPOSITORY: "fabnord.io/webapp"
+  CONTAINER_TAG: "${{ GITHUB_RUN_NUMBER }}"
+
 jobs:
-  build_webapp:
+  build_webapp_image:
     runs-on: ubuntu-latest
-    
-    services:
-      registry:
-        image: registry:2
-        ports:
-          - 5000:5000
 
     steps:
     - uses: actions/checkout@v3
@@ -26,32 +27,27 @@ jobs:
         node-version: '18.x'
         cache: 'npm'
     - run: npm ci
-    # - run: npm run build --if-present
-    # - run: npm test
 
     - name: Docker Setup Buildx
       uses: docker/setup-buildx-action@v2.1.0
-      with:
-          driver-opts: network=host
 
     - name: Build and push Docker images
       uses: docker/build-push-action@v3.2.0
       with:
         file: ./Dockerfile
-        push: true
-        tags: localhost:5000/cscicd/webapp:latest
+        load: true
+        tags: "${{ env.CONTAINER_REPOSITORY }}:${{ env.CONTAINER_TAG }}"
 
     - name: Inspect
       run: |
-        docker buildx imagetools inspect localhost:5000/cscicd/webapp:latest
+        docker buildx imagetools inspect "${{ env.CONTAINER_REPOSITORY }}:${{ env.CONTAINER_TAG }}"
 
     - name: CrowdStrike Container Image Scan
       uses: crowdstrike/container-image-scan-action@v0.7
       with:
-        crowdstrike_region: us-1
-        container_repository: localhost:5000/cscicd/webapp
-        container_tag: latest
-        log_level: DEBUG
+        crowdstrike_region: "${{ env.FALCON_CLOUD_REGION }}"
+        container_repository: "${{ env.CONTAINER_REPOSITORY }}"
+        container_tag: "${{ env.CONTAINER_TAG }}"
       env:
         FALCON_CLIENT_ID: "${{ secrets.FALCON_CLIENT_ID }}"
         FALCON_CLIENT_SECRET: "${{ secrets.FALCON_CLIENT_SECRET }}"

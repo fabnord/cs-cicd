@@ -2,34 +2,45 @@ name: Sample Webapp CI
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ "main" ]
-  pull_request:
-    branches: [ "main" ]
+  # push:
+  #   branches: [ "main" ]
+  # pull_request:
+  #   branches: [ "main" ]
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        node-version: [18.x]
+    
+    services:
+      registry:
+        image: registry:2
+        ports:
+          - 5000:5000
 
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
+
+    - name: Use Node.js 18.x
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
+        node-version: '18.x'
         cache: 'npm'
     - run: npm ci
     # - run: npm run build --if-present
     # - run: npm test
+
     - name: Docker Setup Buildx
       uses: docker/setup-buildx-action@v2.1.0
+      with:
+          driver-opts: network=host
+
     - name: Build and push Docker images
       uses: docker/build-push-action@v3.2.0
       with:
         file: ./Dockerfile
-        push: false
+        push: true
+        tags: localhost:5000/cscicd/webapp:latest
+
+    - name: Inspect
+      run: |
+        docker buildx imagetools inspect localhost:5000/cscicd/webapp:latest

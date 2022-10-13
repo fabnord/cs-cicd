@@ -40,7 +40,7 @@ jobs:
 
     - name: Inspect
       run: |
-        docker buildx imagetools inspect "${{ env.CONTAINER_REPOSITORY }}:${{ env.CONTAINER_TAG }}"
+        docker image inspect "${{ env.CONTAINER_REPOSITORY }}:${{ env.CONTAINER_TAG }}"
 
     - name: CrowdStrike Container Image Scan
       uses: crowdstrike/container-image-scan-action@v0.7

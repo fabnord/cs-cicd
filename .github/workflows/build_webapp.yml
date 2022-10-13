@@ -8,7 +8,7 @@ on:
   #   branches: [ "main" ]
 
 jobs:
-  build:
+  build webapp:
     runs-on: ubuntu-latest
     
     services:
@@ -44,3 +44,14 @@ jobs:
     - name: Inspect
       run: |
         docker buildx imagetools inspect localhost:5000/cscicd/webapp:latest
+
+    - name: CrowdStrike Container Image Scan
+      uses: crowdstrike/container-image-scan-action@v0.7
+      with:
+        crowdstrike_region: us-1
+        container_repository: localhost:5000/cscicd/webapp
+        container_tag: latest
+        log_level: DEBUG
+      env:
+        FALCON_CLIENT_ID: "${{ secrets.FALCON_CLIENT_ID }}"
+        FALCON_CLIENT_SECRET: "${{ secrets.FALCON_CLIENT_SECRET }}"

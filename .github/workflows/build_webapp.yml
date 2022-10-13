@@ -2,10 +2,10 @@ name: Sample Webapp CI
 
 on:
   workflow_dispatch:
-  # push:
-  #   branches: [ "main" ]
-  # pull_request:
-  #   branches: [ "main" ]
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 env:
   FALCON_CLIENT_ID: "${{ secrets.FALCON_CLIENT_ID }}"

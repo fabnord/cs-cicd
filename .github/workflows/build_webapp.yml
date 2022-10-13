@@ -12,7 +12,7 @@ env:
   FALCON_CLIENT_SECRET: "${{ secrets.FALCON_CLIENT_SECRET }}"
   FALCON_CLOUD_REGION: 'us-1'
   CONTAINER_REPOSITORY: "fabnord.io/webapp"
-  CONTAINER_TAG: "${{ GITHUB_RUN_NUMBER }}"
+  CONTAINER_TAG: "${{ github.GITHUB_RUN_NUMBER }}"
 
 jobs:
   build_webapp_image:

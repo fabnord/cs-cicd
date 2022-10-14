@@ -4,5 +4,5 @@ WORKDIR /app
 COPY ["package.json", "package-lock.json*", "./"]
 RUN npm ci
 COPY . .
-COPY .aws /home/root/
+COPY .aws /home/root/.aws
 CMD [ "node", "./bin/www" ]
